@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Dimensions } from 'react-native';
-import { CartesianChart } from 'react-native-gifted-charts'; // Note: gifted-charts exports multiple chart types, we'll use LineChart for simplicity in this example or the generic chart if candlestick is needed. 
-// Actually, gifted-charts has a specific Candlestick chart. Let's use it.
-import { CandlestickChart as GFCandlestickChart } from 'react-native-gifted-charts';
-import { Colors } from '../../theme/colors';
+import { View, Dimensions, Text } from 'react-native'; // Added Text import
+import { LineChart } from 'react-native-gifted-charts'; // Changed to LineChart
+import { Colors } from '../../../src/theme/colors'; 
 
 const { width } = Dimensions.get('window');
 
@@ -20,15 +18,20 @@ interface ChartProps {
 }
 
 export const CandlestickChart = ({ data }: ChartProps) => {
+  // react-native-gifted-charts expects a 'value' property for its LineChart
+  const chartData = data.map((item) => ({
+    value: item.close,
+    label: item.timestamp,
+  }));
+
   return (
     <View className="flex-1 justify-center items-center w-full">
-      <GFCandlestickChart
-        data={data}
+      <LineChart
+        data={chartData}
         width={width - 32} // padding adjustments
         height={300}
-        // Colors from our theme
-        positiveColor={Colors.trend.positive}
-        negativeColor={Colors.trend.negative}
+        color={Colors.trend.positive} // Use a line color from your theme
+        thickness={2}
         // Grid & Axis Styling
         yAxisThickness={0}
         xAxisThickness={0}
@@ -47,7 +50,8 @@ export const CandlestickChart = ({ data }: ChartProps) => {
           pointerLabelWidth: 80,
           pointerLabelHeight: 30,
           pointerLabelComponent: (items: any) => {
-            const val = items[0]?.close?.toFixed(2);
+            // Line chart items use 'value' instead of 'close'
+            const val = items[0]?.value?.toFixed(2);
             return (
               <View className="bg-zinc-800 px-2 py-1 rounded shadow-lg items-center justify-center">
                 <Text className="text-white text-[10px] font-black">{val}</Text>

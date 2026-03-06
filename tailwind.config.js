@@ -1,6 +1,16 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./app/**/*.{js,jsx,ts,tsx}", "./src/**/*.{js,jsx,ts,tsx}"],
+module.exports = { 
+  // 🚀 Add this line to fix the Dark Mode crash
+  darkMode: 'class',
+
+  content: [
+    "./app/**/*.{js,jsx,ts,tsx}", 
+    "./src/**/*.{js,jsx,ts,tsx}",
+    "./components/**/*.{js,jsx,ts,tsx}"
+  ],
+  // 🚀 This is the critical line added for NativeWind
+  presets: [require("nativewind/preset")],
+  
   theme: {
     extend: {
       colors: {

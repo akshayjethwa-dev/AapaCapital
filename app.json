@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "AapaCapital",
+    "slug": "aapa-capital",
+    "version": "1.0.0",
+    "scheme": "aapacapital",
+    "userInterfaceStyle": "dark",
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow AapaCapital to use Face ID for fast login."
+        }
+      ]
+    ]
+  }
+}

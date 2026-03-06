@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useMemo, memo } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
-import { useTicker } from '../../hooks/useTicker';
-import { Colors } from '../../theme/colors';
-import { cn } from '../../utils/cn';
+import { useTicker } from '../../src/hooks/useTicker';
+import { Colors } from '../../src/theme/colors';
+import { cn } from '../../src/utils/cn';
 
 export interface Option {
   strike: number;
