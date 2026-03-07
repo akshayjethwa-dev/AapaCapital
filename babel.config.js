@@ -14,6 +14,8 @@ module.exports = function (api) {
           },
         },
       ],
+      // REQUIRED for the Swipe-to-Trade gestures to work! MUST BE LAST!
+      "react-native-reanimated/plugin",
     ],
   };
 };

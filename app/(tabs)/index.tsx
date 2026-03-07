@@ -15,13 +15,12 @@ import { cn } from '../../src/utils/cn';
 
 // Sub-component for individual index with Granular Re-rendering
 const IndexCard = ({ item }: { item: Index }) => {
-  const livePrice = useTicker(item.symbol);
-  const displayPrice = livePrice || item.price.current;
+  const ticker = useTicker(item.symbol);
   
-  // Calculate change based on original close price to maintain accuracy during live ticks
-  const previousClose = item.price.current - item.price.change;
-  const liveChange = displayPrice - previousClose;
-  const liveChangePercent = (liveChange / previousClose) * 100;
+  // Safely extract the numbers from the ticker object or fallback to initial data
+  const displayPrice = ticker.current || item.price.current;
+  const liveChange = ticker.change || item.price.change;
+  const liveChangePercent = ticker.changePercent || item.price.changePercent;
   const isPositive = liveChange >= 0;
 
   return (
@@ -51,11 +50,10 @@ const IndexCard = ({ item }: { item: Index }) => {
 
 // Sub-component for individual stock
 const StockCard = ({ item }: { item: Stock }) => {
-  const livePrice = useTicker(item.symbol);
-  const displayPrice = livePrice || item.price.current;
+  const ticker = useTicker(item.symbol);
   
-  const previousClose = item.price.current - item.price.change;
-  const liveChangePercent = ((displayPrice - previousClose) / previousClose) * 100;
+  const displayPrice = ticker.current || item.price.current;
+  const liveChangePercent = ticker.changePercent || item.price.changePercent;
   const isPositive = liveChangePercent >= 0;
 
   return (
@@ -91,12 +89,6 @@ export default function DashboardScreen() {
   // Sort logic for Gainers and Losers
   const topGainers = [...stocks].sort((a, b) => b.price.changePercent - a.price.changePercent).slice(0, 3);
   const topLosers = [...stocks].sort((a, b) => a.price.changePercent - b.price.changePercent).slice(0, 3);
-
-  // Start WebSocket connection when dashboard mounts
-  useEffect(() => {
-    wsService.connect();
-    return () => wsService.disconnect();
-  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-black">

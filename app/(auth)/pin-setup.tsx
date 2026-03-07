@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Alert } from 'react-native';
+import { View, Text, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -43,16 +43,19 @@ export default function PinSetupScreen() {
       return;
     }
 
-    // Ask for Biometrics
-    const hasHardware = await LocalAuthentication.hasHardwareAsync();
-    const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-    
     let useBio = false;
-    if (hasHardware && isEnrolled) {
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Enable Biometric Login for Aapa Capital',
-      });
-      useBio = result.success;
+    
+    // Only attempt to register Biometrics on Mobile
+    if (Platform.OS !== 'web') {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+      
+      if (hasHardware && isEnrolled) {
+        const result = await LocalAuthentication.authenticateAsync({
+          promptMessage: 'Enable Biometric Login for Aapa Capital',
+        });
+        useBio = result.success;
+      }
     }
 
     await setupPin(p1, useBio);

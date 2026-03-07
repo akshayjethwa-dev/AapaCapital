@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Alert } from 'react-native';
+import { View, Text, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -14,12 +14,15 @@ export default function PinVerifyScreen() {
   const [pin, setPin] = useState('');
 
   useEffect(() => {
-    if (biometricEnabled) {
+    // Only attempt Biometrics on actual iOS/Android devices
+    if (biometricEnabled && Platform.OS !== 'web') {
       handleBiometric();
     }
   }, []);
 
   const handleBiometric = async () => {
+    if (Platform.OS === 'web') return;
+    
     const result = await LocalAuthentication.authenticateAsync({
       promptMessage: 'Unlock Aapa Capital',
       fallbackLabel: 'Use PIN',
@@ -35,7 +38,15 @@ export default function PinVerifyScreen() {
       setPin(newPin);
       
       if (newPin.length === 4) {
-        const savedPin = await SecureStore.getItemAsync('user_pin');
+        let savedPin;
+        
+        // Use localStorage on Web, SecureStore on Mobile
+        if (Platform.OS === 'web') {
+          savedPin = localStorage.getItem('user_pin');
+        } else {
+          savedPin = await SecureStore.getItemAsync('user_pin');
+        }
+
         if (newPin === savedPin) {
           router.replace('/(tabs)');
         } else {
@@ -79,7 +90,7 @@ export default function PinVerifyScreen() {
       <PinKeypad 
         onPress={handleKeyPress} 
         onDelete={() => setPin(pin.slice(0, -1))} 
-        showBiometric={biometricEnabled}
+        showBiometric={biometricEnabled && Platform.OS !== 'web'}
         onBiometric={handleBiometric}
       />
     </SafeAreaView>

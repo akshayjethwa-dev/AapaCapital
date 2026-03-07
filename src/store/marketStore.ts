@@ -30,7 +30,7 @@ interface MarketState {
   watchlist: string[];
   
   // WebSocket Live Data State
-  prices: Record<string, number>;
+  prices: Record<string, Price>;
   marketDepth: Record<string, MarketDepth>;
   isConnected: boolean;
   
@@ -63,21 +63,28 @@ export const useMarketStore = create<MarketState>((set) => ({
   indices: initialIndices,
   stocks: initialStocks,
   watchlist: ['RELIANCE', 'TCS'],
-  prices: {},
+  
+  prices: {
+    'NIFTY 50': { current: 22145.20, change: 124.50, changePercent: 0.56 },
+    'BANKNIFTY': { current: 47500.10, change: -120.30, changePercent: -0.25 },
+    'RELIANCE': { current: 2950.40, change: 45.20, changePercent: 1.55 },
+  },
+  
   marketDepth: {},
   isConnected: false,
 
   setConnectionStatus: (status) => set({ isConnected: status }),
   
-  updateTickers: (data) => set((state) => ({ 
-    prices: { ...state.prices, ...data } 
-  })),
+  // Dummy implementation to satisfy legacy type signatures
+  updateTickers: (data) => set((state) => ({ prices: state.prices })),
 
   updateDepth: (symbol, depth) => set((state) => ({
     marketDepth: { ...state.marketDepth, [symbol]: depth }
   })),
 
+  // Global price updater used by the WebSocket simulator
   updatePrice: (symbol, price) => set((state) => ({
+    prices: { ...state.prices, [symbol]: price },
     indices: state.indices.map(idx => 
       idx.symbol === symbol ? { ...idx, price } : idx
     ),

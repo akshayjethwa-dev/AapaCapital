@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
 interface SearchState {
   recentSearches: string[];
@@ -13,7 +14,14 @@ export const useSearchStore = create<SearchState>((set, get) => ({
   
   loadRecentSearches: async () => {
     try {
-      const stored = await SecureStore.getItemAsync('recent_searches');
+      let stored;
+      // Fallback for Web browser compatibility
+      if (Platform.OS === 'web') {
+        stored = localStorage.getItem('recent_searches');
+      } else {
+        stored = await SecureStore.getItemAsync('recent_searches');
+      }
+
       if (stored) {
         set({ recentSearches: JSON.parse(stored) });
       }
@@ -30,12 +38,28 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     // Add to top, remove duplicates, keep only last 8
     const updated = [cleanQuery, ...current.filter(q => q !== cleanQuery)].slice(0, 8);
     
-    await SecureStore.setItemAsync('recent_searches', JSON.stringify(updated));
-    set({ recentSearches: updated });
+    try {
+      if (Platform.OS === 'web') {
+        localStorage.setItem('recent_searches', JSON.stringify(updated));
+      } else {
+        await SecureStore.setItemAsync('recent_searches', JSON.stringify(updated));
+      }
+      set({ recentSearches: updated });
+    } catch (e) {
+      console.error("Failed to save recent search", e);
+    }
   },
 
   clearRecentSearches: async () => {
-    await SecureStore.deleteItemAsync('recent_searches');
-    set({ recentSearches: [] });
+    try {
+      if (Platform.OS === 'web') {
+        localStorage.removeItem('recent_searches');
+      } else {
+        await SecureStore.deleteItemAsync('recent_searches');
+      }
+      set({ recentSearches: [] });
+    } catch (e) {
+      console.error("Failed to clear recent searches", e);
+    }
   }
 }));

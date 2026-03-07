@@ -74,9 +74,9 @@ const OptionRow = memo(({
   const isSelectedPE = selectedOption?.strike === strike && selectedOption?.type === 'PE';
 
   return (
-    <View className={cn("flex-row border-b border-zinc-900", isATM && "bg-emerald-500/5", (isSelectedCE || isSelectedPE) ? "h-[80px]" : "h-[56px]")}>
+    <View className={cn("flex-row border-b border-zinc-900", isATM && "bg-emerald-500/5", (isSelectedCE || isSelectedPE) ? "h-20" : "h-14")}>
       
-      {isATM && <View className="absolute top-0 w-full h-[1px] bg-emerald-500/30 z-10" />}
+      {isATM && <View className="absolute top-0 w-full h-px bg-emerald-500/30 z-10" />}
 
       <TouchableOpacity 
         onPress={() => onSelect(strike, 'CE')}
@@ -107,7 +107,7 @@ const OptionRow = memo(({
         </View>
       </TouchableOpacity>
 
-      <View className={cn("w-[80px] items-center justify-center border-l border-r border-zinc-900 relative", isATM ? "bg-emerald-500/20" : "bg-zinc-950")}>
+      <View className={cn("w-20 items-center justify-center border-l border-r border-zinc-900 relative", isATM ? "bg-emerald-500/20" : "bg-zinc-950")}>
         <Text className={cn("text-[13px] tracking-tighter", isATM ? "font-black text-emerald-500" : "font-bold text-zinc-400")}>
           {strike.toLocaleString('en-IN')}
         </Text>
@@ -160,7 +160,10 @@ const OptionRow = memo(({
 
 export const OptionChain = ({ symbol, expiry, onTrade }: OptionChainProps) => {
   const flatListRef = useRef<FlatList>(null);
-  const spotPrice = useTicker(symbol) || 22000;
+  
+  // FIX: Extract `.current` to get the actual number from the new Ticker object!
+  const liveTicker = useTicker(symbol);
+  const spotPrice = liveTicker.current || 22000;
   
   const [viewMode, setViewMode] = useState<'Price' | 'Greeks'>('Price');
   const [selectedOption, setSelectedOption] = useState<{ strike: number, type: 'CE' | 'PE' } | null>(null);
@@ -193,7 +196,7 @@ export const OptionChain = ({ symbol, expiry, onTrade }: OptionChainProps) => {
           <View className="flex-1 px-3 items-start"><Text className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">{viewMode === 'Price' ? 'OI (Call)' : 'Greeks'}</Text></View>
           <View className="flex-1 px-3 items-end"><Text className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">LTP</Text></View>
         </View>
-        <View className="w-[80px] items-center justify-center">
+        <View className="w-20 items-center justify-center">
           <Text className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Strike</Text>
         </View>
         <View className="flex-1 flex-row items-center">
